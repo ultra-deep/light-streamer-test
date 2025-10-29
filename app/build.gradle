@@ -1,0 +1,54 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdk 33
+
+    namespace 'com.lightstreamer.simple_demo.android'
+
+    defaultConfig {
+        applicationId "com.lightstreamer.simple_demo.android"
+        minSdkVersion 23
+        targetSdkVersion 33
+        versionCode 20
+        versionName "2.2.0"
+        multiDexEnabled true
+    }
+    /*signingConfigs {
+        release {
+            storeFile file(System.getenv("KSTORE"))
+            storePassword System.getenv("KSTOREPWD")
+            keyAlias "LS"
+            keyPassword System.getenv("KEYPWD")
+        }
+    }*/
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // signingConfig signingConfigs.release
+        }
+    }
+    packagingOptions {
+        pickFirst 'build.number'
+        pickFirst 'version.number'
+        pickFirst 'compatibility_version.number'
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/io.netty.versions.properties'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.androidplot:androidplot-core:1.0.0'
+//    implementation 'com.lightstreamer:ls-android-client:5.0.0-beta.3'
+    implementation 'com.lightstreamer:ls-android-client:4.2.8'
+}
