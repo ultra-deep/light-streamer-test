@@ -2,12 +2,13 @@ package com.lightstreamer.simple_demo.android.subscriptions;
 
 
 import com.lightstreamer.client.Subscription;
+import com.lightstreamer.simple_demo.android.ClientProxy;
 import com.lightstreamer.simple_demo.android.LightstreamerClientProxy;
 import com.lightstreamer.simple_demo.android.StockListDemoApplication;
 
 public class SleNotifierSubscription {
     final static String DATA_ADAPTER = "sleNotifier";
-    final static String[] items = {"android*Notifier*" + StockListDemoApplication.HASHED_CUSTOMER_ID};
+    final static String[] items = {"android*Notifier*" + ClientProxy.HASHED_CUSTOMER_ID};
     public final static String[] subscriptionFields = {
             "command",
             "key",

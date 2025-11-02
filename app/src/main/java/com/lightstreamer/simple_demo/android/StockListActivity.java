@@ -34,7 +34,6 @@ import com.lightstreamer.client.ItemUpdate;
 import com.lightstreamer.client.LightstreamerClient;
 import com.lightstreamer.simple_demo.android.subscriptions.MainSubscriptionListener;
 import com.lightstreamer.simple_demo.android.subscriptions.PortfolioSubscription;
-import com.lightstreamer.simple_demo.android.subscriptions.SleNotifierSubscription;
 
 
 public class StockListActivity extends AppCompatActivity {
@@ -42,42 +41,25 @@ public class StockListActivity extends AppCompatActivity {
 
     private static final String TAG = "StockListDemo";
 
-    private Handler handler;
+    final private Handler handler = new Handler();
 
-    private ClientListener currentListener = new LSClientListener();
 //    private boolean pnEnabled = false;
     private boolean isConnectionExpected = false;
     
 
     LightstreamerClientProxy client;
 
-    private final SleNotifierSubscription sleNotifierSubscription = new SleNotifierSubscription();
+    private PortfolioSubscription s1 = new PortfolioSubscription();
+    private PortfolioSubscription s2 = new PortfolioSubscription();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         client = StockListDemoApplication.client;
-
-        this.handler = new Handler();
-
+        client.addListener(new LSClientListener());
 
         setContentView(R.layout.stocks);
-
-        findViewById(R.id.textView).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                new AgreementPusherSubscription().subScribe();
-//                new PortfolioSubscription().subScribe();
-                sleNotifierSubscription.subScribe();
-//                sleNotifierSubscription.subScribe();
-            }
-        });
-//        new AgreementPusherSubscription().subScribe();
-//        new CustomerBuyingPowerSubscription().subScribe();
-//        new BrokerageNotificationSubscription().subScribe();
-//        new CustomerBuyingPowerSubscription().subScribe();
-//        new NotificationCenterSubscription().subScribe();
 
         MainSubscriptionListener mainSubscriptionListener = new MainSubscriptionListener() {
             @Override
@@ -101,7 +83,62 @@ public class StockListActivity extends AppCompatActivity {
             }
         };
 
-        new PortfolioSubscription().subScribe(mainSubscriptionListener);
+        MainSubscriptionListener mainSubscriptionListener2 = new MainSubscriptionListener() {
+            @Override
+            public void onItemUpdate(ItemUpdate update) {
+                super.onItemUpdate(update);
+                StringBuilder fieldsvalues = new StringBuilder();
+                for (String k : update.getFields().keySet()) {
+                    fieldsvalues.append(k);
+                    fieldsvalues.append(" = ");
+                    fieldsvalues.append(update.getFields().get(k));
+                    fieldsvalues.append("\r\n");
+                }
+                Log.i(TAG, "ON ITEM UPDATE " + fieldsvalues.toString());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        TextView tv =  (TextView) findViewById(R.id.textView2);
+                        tv.setText(fieldsvalues.toString());
+                    }
+                });
+            }
+        };
+
+        findViewById(R.id.textView).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (s1.isSubscribed()) {
+                    ((TextView)v).setText("UnSubscribed");
+                    s1.unSubscribe();
+                } else {
+                    s1.subScribe(mainSubscriptionListener);
+                }
+
+            }
+        });
+
+        findViewById(R.id.textView2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (s2.isSubscribed()) {
+                    ((TextView)v).setText("UnSubscribed");
+                    s2.unSubscribe();
+                } else {
+                    s2.subScribe(mainSubscriptionListener2);
+                }
+            }
+        });
+//        new AgreementPusherSubscription().subScribe();
+//        new CustomerBuyingPowerSubscription().subScribe();
+//        new BrokerageNotificationSubscription().subScribe();
+//        new CustomerBuyingPowerSubscription().subScribe();
+//        new NotificationCenterSubscription().subScribe();
+
+
+
+        s1.subScribe(mainSubscriptionListener);
+        s2.subScribe(mainSubscriptionListener2);
 //        sleNotifierSubscription.subScribe();
     }
 
@@ -109,7 +146,6 @@ public class StockListActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        client.removeListener(currentListener);
         client.stop(false);
     }
     
@@ -117,7 +153,6 @@ public class StockListActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
-        client.addListener(this.currentListener);
         isConnectionExpected = client.start(false);
     }
 
@@ -162,15 +197,7 @@ public class StockListActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        sleNotifierSubscription.unSubscribe();
-    }
-
     public class LSClientListener implements ClientListener {
-
-
         @Override
         public void onPropertyChange(String arg0) {
         }
@@ -195,9 +222,9 @@ public class StockListActivity extends AppCompatActivity {
             Log.e("LLLSSS", "onStatusChange: " + status );
             handler.post(new StatusChange(status));
         }
-        
+
     }
-    
+
     
     private class StatusChange implements Runnable {
 
@@ -208,12 +235,10 @@ public class StockListActivity extends AppCompatActivity {
         }
         
         private void applyStatus(int textId , int color , String status) {
-//            ImageView statusIcon = (ImageView) findViewById(R.id.status_image);
-//            TextView textStatus = (TextView) findViewById(R.id.text_status);
-            TextView textStatus = (TextView) findViewById(R.id.textView);
+            TextView textStatus = (TextView) findViewById(R.id.textViewStatus);
 
             textStatus.setBackgroundColor(color);
-            textStatus.setText(status);
+            textStatus.setText("Connection Status : " + status);
 
         }
 

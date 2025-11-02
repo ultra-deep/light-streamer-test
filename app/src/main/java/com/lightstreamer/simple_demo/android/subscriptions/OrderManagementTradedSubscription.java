@@ -2,12 +2,13 @@ package com.lightstreamer.simple_demo.android.subscriptions;
 
 
 import com.lightstreamer.client.Subscription;
+import com.lightstreamer.simple_demo.android.ClientProxy;
 import com.lightstreamer.simple_demo.android.LightstreamerClientProxy;
 import com.lightstreamer.simple_demo.android.StockListDemoApplication;
 
 public class OrderManagementTradedSubscription {
     final static String DATA_ADAPTER = "OrderManagementTraded";
-    final static String[] items = {"android*tradeOrder*" + StockListDemoApplication.HASHED_CUSTOMER_ID};
+    final static String[] items = {"android*tradeOrder*" + ClientProxy.HASHED_CUSTOMER_ID};
     public final static String[] subscriptionFields = {
             "key",
             "command",
